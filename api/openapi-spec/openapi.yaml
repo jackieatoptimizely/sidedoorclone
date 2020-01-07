@@ -107,9 +107,9 @@ paths:
     parameters:
     - $ref: '#/components/parameters/featureKeyParam'
     get:
-      summary: Return the feature
+      summary: Return the handler
       operationId: getFeature
-      description: Get feature returns the corresponding feature for the given featureKey.
+      description: Get handler returns the corresponding handler for the given featureKey.
       tags:
         - features
       responses:
@@ -125,7 +125,7 @@ paths:
 #    parameters:
 #    - $ref: '#/components/parameters/featureKeyParam'
 #    get:
-#      summary: Return feature variations
+#      summary: Return handler variations
 #      operationId: listFeatureVariations
 #      responses:
 #        '200':
@@ -143,7 +143,7 @@ paths:
 #    - $ref: '#/components/parameters/featureKeyParam'
 #    - $ref: '#/components/parameters/variationKeyParam'
 #    get:
-#      summary: Return the feature variant
+#      summary: Return the handler variant
 #      operationId: getFeatureVariation
 #      responses:
 #        '200':
@@ -186,7 +186,7 @@ paths:
       summary: Track event for the given user.
       operationId: trackEvent
       description: Posting and event sends user and event details to Optimizely’s analytics backend for the analysis of
-                   a feature test or a/b test.
+                   a handler test or a/b test.
       tags:
         - users
       responses:
@@ -280,9 +280,9 @@ paths:
     get:
       summary: Return ALL features resulting from an experiment or rollout
       operationId: listFeatureDecisions
-      description: List feature decisions iterates over all features and returns the feature decisions in the context
-                   of the given user. All features are included regardless of whether the feature is enabled. The
-                   response includes the enabled status of the feature in addition to any configured variables.
+      description: List handler decisions iterates over all features and returns the handler decisions in the context
+                   of the given user. All features are included regardless of whether the handler is enabled. The
+                   response includes the enabled status of the handler in addition to any configured variables.
       tags:
         - users
       responses:
@@ -297,10 +297,10 @@ paths:
     post:
       summary: Activate ALL features resulting from an experiment or rollout
       operationId: activateAllFeatures
-      description: List feature decisions iterates over all features and returns the feature definition in the context
-                   of the given user. All features are included regardless of whether the feature is enabled. The
-                   response includes the enabled status of the feature in addition to any configured variables. Any
-                   feature that is part of a feature test(s) will also send an impression event to the Optimizely
+      description: List handler decisions iterates over all features and returns the handler definition in the context
+                   of the given user. All features are included regardless of whether the handler is enabled. The
+                   response includes the enabled status of the handler in addition to any configured variables. Any
+                   handler that is part of a handler test(s) will also send an impression event to the Optimizely
                    analytics backend for reporting analysis.
       tags:
         - users
@@ -319,10 +319,10 @@ paths:
     - $ref: '#/components/parameters/featureKeyParam'
     - $ref: '#/components/parameters/attributesParam'
     get:
-      summary: Return feature resulting from an experiment or rollout
+      summary: Return handler resulting from an experiment or rollout
       operationId: getFeatureDecision
-      description: Read the feature flag decision for the supplied user ID and experiment key.  The response is
-                   determined by the feature test(s) and/or feature rollout defined for the supplied feature key.
+      description: Read the handler flag decision for the supplied user ID and experiment key.  The response is
+                   determined by the handler test(s) and/or handler rollout defined for the supplied handler key.
       tags:
         - users
       responses:
@@ -337,11 +337,11 @@ paths:
         '404':
           description: Feature does not exist
     post:
-      summary: Activate feature and return associated variable values
+      summary: Activate handler and return associated variable values
       operationId: activateFeature
-      description: Read the feature flag decisions for the supplied user ID. The response value is determined by the
-                   feature test(s) and/or feature rollout defined for the supplied feature key. If the decision was mafe
-                   as part of a feature test, then this API will send an impression event to Optimizely tracking servers.
+      description: Read the handler flag decisions for the supplied user ID. The response value is determined by the
+                   handler test(s) and/or handler rollout defined for the supplied handler key. If the decision was mafe
+                   as part of a handler test, then this API will send an impression event to Optimizely tracking servers.
       tags:
         - users
       responses:
@@ -383,7 +383,7 @@ components:
       in: path
       name: featureKey
       required: true
-      description: Key of the feature we're activating
+      description: Key of the handler we're activating
       schema:
         type: string
     userIdParam:

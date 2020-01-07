@@ -14,13 +14,29 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package models //
-package models
+// Package router //
+package router
 
-// Feature Model
-type Feature struct {
-	Key       string            `json:"key"`
-	Variables map[string]string `json:"variables,omitempty"`
-	ID        int32             `json:"id,omitempty"`
-	Enabled   bool              `json:"enabled"`
+import (
+	"github.com/optimizely/sidedoor/pkg/handler"
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/optimizely/sidedoor/pkg/middleware"
+)
+
+var listExperimentsTimer func(http.Handler) http.Handler
+var getExperimentTimer func(http.Handler) http.Handler
+
+func init() {
+	listExperimentsTimer = middleware.Metricize("list-experiments")
+	getExperimentTimer = middleware.Metricize("get-experiment")
+}
+
+// NewRouter returns HTTP API router backed by an optimizely.Cache implementation
+func WithExperimentRouter(api handler.ExperimentAPI) func(chi.Router) {
+	return func(r chi.Router) {
+		r.With(listExperimentsTimer).Get("/", api.ListExperiments)
+		r.With(getExperimentTimer).Get("/{experimentKey}", api.GetExperiment)
+	}
 }

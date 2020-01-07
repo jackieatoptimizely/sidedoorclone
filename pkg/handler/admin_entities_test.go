@@ -15,7 +15,7 @@
 // ***************************************************************************/
 
 // Package handlers //
-package handlers
+package handler
 
 import (
 	"encoding/json"

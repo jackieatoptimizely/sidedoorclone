@@ -15,7 +15,7 @@
  ***************************************************************************/
 
 // Package handlers //
-package handlers
+package handler
 
 import (
 	"net/http"
@@ -23,7 +23,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 
-	"github.com/optimizely/sidedoor/pkg/api/middleware"
+	"github.com/optimizely/sidedoor/pkg/middleware"
 )
 
 // ExperimentHandler implements the ExperimentAPI interface

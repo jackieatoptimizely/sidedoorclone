@@ -15,7 +15,7 @@
  ***************************************************************************/
 
 // Package handlers //
-package handlers
+package handler
 
 import (
 	"errors"
@@ -25,8 +25,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 
-	"github.com/optimizely/sidedoor/pkg/api/middleware"
-	"github.com/optimizely/sidedoor/pkg/api/models"
+	"github.com/optimizely/sidedoor/pkg/middleware"
 	"github.com/optimizely/sidedoor/pkg/optimizely"
 )
 
@@ -67,7 +66,7 @@ func (h *UserHandler) TrackEvent(w http.ResponseWriter, r *http.Request) {
 	render.NoContent(w, r)
 }
 
-// GetFeature - Return the feature. Note: no impressions recorded for associated feature tests.
+// GetFeature - Return the handler. Note: no impressions recorded for associated handler tests.
 func (h *UserHandler) GetFeature(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -79,7 +78,7 @@ func (h *UserHandler) GetFeature(w http.ResponseWriter, r *http.Request) {
 	renderFeature(w, r, featureKey, optlyClient, optlyContext)
 }
 
-// TrackFeature - Return the feature and record impression if applicable.
+// TrackFeature - Return the handler and record impression if applicable.
 // Tracking impressions is only supported for "Feature Tests" as part of the SDK contract.
 func (h *UserHandler) TrackFeature(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
@@ -181,8 +180,8 @@ func (h *UserHandler) RemoveForcedVariation(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// ListFeatures - List all feature decisions for a user
-// Note: no impressions recorded for associated feature tests.
+// ListFeatures - List all handler decisions for a user
+// Note: no impressions recorded for associated handler tests.
 func (h *UserHandler) ListFeatures(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -193,7 +192,7 @@ func (h *UserHandler) ListFeatures(w http.ResponseWriter, r *http.Request) {
 	renderFeatures(w, r, optlyClient, optlyContext)
 }
 
-// TrackFeatures - List all feature decisions for a user. Impression events are recorded for all applicable feature tests.
+// TrackFeatures - List all handler decisions for a user. Impression events are recorded for all applicable handler tests.
 func (h *UserHandler) TrackFeatures(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -202,7 +201,7 @@ func (h *UserHandler) TrackFeatures(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// HACK - Triggers impression events when applicable. This is not
-	// ideal since we're making TWO decisions for each feature now. OASIS-5549
+	// ideal since we're making TWO decisions for each handler now. OASIS-5549
 	enabledFeatures, softErr := optlyClient.GetEnabledFeatures(*optlyContext.UserContext)
 	middleware.GetLogger(r).Info().Strs("enabledFeatures", enabledFeatures).Msg("Calling GetEnabledFeatures")
 	if softErr != nil {
@@ -228,20 +227,20 @@ func parseContext(r *http.Request) (*optimizely.OptlyClient, *optimizely.OptlyCo
 	return optlyClient, optlyContext, nil
 }
 
-// getModelOfFeatureDecision - Returns a models.Feature representing the feature decision from the provided client and context
-func getModelOfFeatureDecision(featureKey string, optlyClient *optimizely.OptlyClient, optlyContext *optimizely.OptlyContext) (*models.Feature, error) {
+// getModelOfFeatureDecision - Returns a models.Feature representing the handler decision from the provided client and context
+func getModelOfFeatureDecision(featureKey string, optlyClient *optimizely.OptlyClient, optlyContext *optimizely.OptlyContext) (*Feature, error) {
 	enabled, variables, err := optlyClient.GetFeatureWithContext(featureKey, optlyContext)
 	if err != nil {
 		return nil, err
 	}
-	return &models.Feature{
+	return &Feature{
 		Key:       featureKey,
 		Enabled:   enabled,
 		Variables: variables,
 	}, nil
 }
 
-// renderFeature excapsulates extracting a Feature from the Optimizely SDK and rendering a feature response.
+// renderFeature excapsulates extracting a Feature from the Optimizely SDK and rendering a handler response.
 func renderFeature(w http.ResponseWriter, r *http.Request, featureKey string, optlyClient *optimizely.OptlyClient, optlyContext *optimizely.OptlyContext) {
 	featureModel, err := getModelOfFeatureDecision(featureKey, optlyClient, optlyContext)
 	if err != nil {
@@ -249,7 +248,7 @@ func renderFeature(w http.ResponseWriter, r *http.Request, featureKey string, op
 		RenderError(err, http.StatusInternalServerError, w, r)
 		return
 	}
-	middleware.GetLogger(r).Debug().Str("featureKey", featureKey).Msg("rendering feature")
+	middleware.GetLogger(r).Debug().Str("featureKey", featureKey).Msg("rendering handler")
 	render.JSON(w, r, featureModel)
 }
 
@@ -262,9 +261,8 @@ func renderFeatures(w http.ResponseWriter, r *http.Request, optlyClient *optimiz
 		return
 	}
 
-
 	featuresCount := len(features)
-	featureModels := make([]*models.Feature, 0, featuresCount)
+	featureModels := make([]*Feature, 0, featuresCount)
 	for _, feature := range features {
 		featureModel, err := getModelOfFeatureDecision(feature.Key, optlyClient, optlyContext)
 		if err != nil {
@@ -273,7 +271,7 @@ func renderFeatures(w http.ResponseWriter, r *http.Request, optlyClient *optimiz
 			return
 		}
 		featureModels = append(featureModels, featureModel)
-		middleware.GetLogger(r).Debug().Str("featureKey", feature.Key).Msg("rendering feature")
+		middleware.GetLogger(r).Debug().Str("featureKey", feature.Key).Msg("rendering handler")
 	}
 
 	render.JSON(w, r, featureModels)
@@ -288,10 +286,31 @@ func renderVariation(w http.ResponseWriter, r *http.Request, experimentKey strin
 		return
 	}
 
-	variationModel := &models.Variation{
+	variationModel := &Variation{
 		Key: variation.Key,
 		ID:  variation.ID,
 	}
 	middleware.GetLogger(r).Debug().Str("experimentKey", experimentKey).Msg("rendering variation")
 	render.JSON(w, r, variationModel)
+}
+
+// Feature Model
+type Feature struct {
+	Key       string            `json:"key"`
+	Variables map[string]string `json:"variables,omitempty"`
+	ID        int32             `json:"id,omitempty"`
+	Enabled   bool              `json:"enabled"`
+}
+
+// FeatureVariation Model
+type FeatureVariation struct {
+	ID        int32             `json:"id"`
+	Key       string            `json:"key"`
+	Variables map[string]string `json:"variables,omitempty"`
+}
+
+// Variation Model
+type Variation struct {
+	ID  string `json:"id"`
+	Key string `json:"key"`
 }

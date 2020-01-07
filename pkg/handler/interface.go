@@ -14,30 +14,43 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package admin //
-package admin
+// Package handlers //
+package handler
 
 import (
-	"github.com/optimizely/sidedoor/config"
 	"net/http"
-
-	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
-	"github.com/optimizely/sidedoor/pkg/admin/handlers"
 )
 
-// NewRouter returns HTTP admin router
-func NewRouter(conf config.AdminConfig) http.Handler {
-	r := chi.NewRouter()
-
-	optlyAdmin := handlers.NewAdmin(conf.Version, conf.Author, conf.Name)
-	r.Use(optlyAdmin.AppInfoHeader)
-
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-
-	r.Get("/health", optlyAdmin.Health)
-	r.Get("/info", optlyAdmin.AppInfo)
-	r.Get("/metrics", optlyAdmin.Metrics)
-
-	return r
+// FeatureAPI defines the supported handler apis.
+type FeatureAPI interface {
+	GetFeature(w http.ResponseWriter, r *http.Request)
+	ListFeatures(w http.ResponseWriter, r *http.Request)
 }
+
+// ExperimentAPI defines the supported experiment apis.
+type ExperimentAPI interface {
+	GetExperiment(w http.ResponseWriter, r *http.Request)
+	ListExperiments(w http.ResponseWriter, r *http.Request)
+}
+
+// UserEventAPI defines the supported user event apis.
+type UserEventAPI interface {
+	AddUserEvent(w http.ResponseWriter, r *http.Request)
+}
+
+// UserAPI defines the supported user scoped APIs.
+type UserAPI interface {
+	ListFeatures(w http.ResponseWriter, r *http.Request)
+	GetFeature(w http.ResponseWriter, r *http.Request)
+	TrackFeatures(w http.ResponseWriter, r *http.Request)
+	TrackFeature(w http.ResponseWriter, r *http.Request)
+
+	TrackEvent(w http.ResponseWriter, r *http.Request)
+
+	ActivateExperiment(w http.ResponseWriter, r *http.Request)
+	GetVariation(w http.ResponseWriter, r *http.Request)
+	SetForcedVariation(w http.ResponseWriter, r *http.Request)
+	RemoveForcedVariation(w http.ResponseWriter, r *http.Request)
+}
+
+// TODO ExperimentApi

@@ -20,9 +20,12 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/go-chi/render"
+	"github.com/optimizely/sidedoor/pkg/handler"
+	"github.com/optimizely/sidedoor/pkg/middleware"
+
 	"github.com/optimizely/go-sdk/pkg/event"
-	"github.com/optimizely/sidedoor/pkg/api/middleware"
+
+	"github.com/go-chi/render"
 )
 
 // UserEventHandler implements the UserEventAPI interface for sending and receiving user event payloads.
@@ -31,10 +34,10 @@ type UserEventHandler struct{}
 // AddUserEvent - Process a user event
 func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter, r *http.Request) {
 	var userEvent event.UserEvent
-	err := ParseRequestBody(r, &userEvent)
+	err := handler.ParseRequestBody(r, &userEvent)
 	if err != nil {
 		middleware.GetLogger(r).Error().Err(err).Msg("Error reading request body")
-		RenderError(err, http.StatusBadRequest, w, r)
+		handler.RenderError(err, http.StatusBadRequest, w, r)
 	}
 
 	// TODO: Should we decode the body into interface{} and do validation

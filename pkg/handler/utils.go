@@ -15,7 +15,7 @@
  ***************************************************************************/
 
 // Package handlers //
-package handlers
+package handler
 
 import (
 	"encoding/json"
@@ -24,8 +24,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/optimizely/sidedoor/pkg/api/middleware"
 	"github.com/optimizely/sidedoor/pkg/api/models"
+	"github.com/optimizely/sidedoor/pkg/middleware"
 )
 
 // RenderError sets the request status and renders the error message.
@@ -58,4 +58,9 @@ func ParseRequestBody(r *http.Request, v interface{}) error {
 	}
 
 	return nil
+}
+
+// ErrorResponse Model
+type ErrorResponse struct {
+	Error string `json:"error"`
 }

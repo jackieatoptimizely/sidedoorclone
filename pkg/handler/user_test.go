@@ -15,7 +15,7 @@
  ***************************************************************************/
 
 // Package handlers //
-package handlers
+package handler
 
 import (
 	"bytes"
@@ -27,8 +27,8 @@ import (
 
 	"github.com/optimizely/go-sdk/pkg/decision"
 
-	"github.com/optimizely/sidedoor/pkg/api/middleware"
 	"github.com/optimizely/sidedoor/pkg/api/models"
+	"github.com/optimizely/sidedoor/pkg/middleware"
 
 	"github.com/optimizely/sidedoor/pkg/optimizely"
 	"github.com/optimizely/sidedoor/pkg/optimizelytest"
@@ -175,7 +175,7 @@ func (suite *UserTestSuite) TestTrackFeatureWithFeatureTest() {
 func (suite *UserTestSuite) TestGetFeaturesMissingFeature() {
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
-	req := httptest.NewRequest("POST", "/features/feature-missing", nil)
+	req := httptest.NewRequest("POST", "/features/handler-missing", nil)
 	rec := httptest.NewRecorder()
 	suite.mux.ServeHTTP(rec, req)
 
@@ -440,7 +440,7 @@ func (suite *UserTestSuite) TestTrackFeatures() {
 	feature := entities.Feature{Key: "featureA"}
 	suite.tc.AddFeatureRollout(feature)
 
-	// 100% enabled feature test
+	// 100% enabled handler test
 	featureB := entities.Feature{Key: "featureB"}
 	suite.tc.AddFeatureTest(featureB)
 

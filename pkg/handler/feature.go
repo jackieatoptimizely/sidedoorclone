@@ -14,8 +14,8 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package handlers //
-package handlers
+// Package handler //
+package handler
 
 import (
 	"net/http"
@@ -23,7 +23,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 
-	"github.com/optimizely/sidedoor/pkg/api/middleware"
+	"github.com/optimizely/sidedoor/pkg/middleware"
 )
 
 // FeatureHandler implements the FeatureAPI interface
@@ -47,7 +47,7 @@ func (h *FeatureHandler) ListFeatures(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, features)
 }
 
-// GetFeature - Get requested feature
+// GetFeature - Get requested handler
 func (h *FeatureHandler) GetFeature(w http.ResponseWriter, r *http.Request) {
 	optlyClient, err := middleware.GetOptlyClient(r)
 	if err != nil {

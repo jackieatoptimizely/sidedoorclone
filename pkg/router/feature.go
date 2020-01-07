@@ -14,10 +14,30 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package models //
-package models
+// Package api //
+package router
 
-// ErrorResponse Model
-type ErrorResponse struct {
-	Error string `json:"error"`
+import (
+	"github.com/optimizely/sidedoor/pkg/handler"
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/optimizely/sidedoor/pkg/middleware"
+)
+
+var listFeaturesTimer func(http.Handler) http.Handler
+var getFeatureTimer func(http.Handler) http.Handler
+
+func init() {
+	listFeaturesTimer = middleware.Metricize("list-features")
+	getFeatureTimer = middleware.Metricize("get-feature")
+}
+
+// NewRouter returns HTTP API router backed by an optimizely.Cache implementation
+func WithFeatureRouter(api handler.FeatureAPI) func(chi.Router) {
+
+	return func(r chi.Router) {
+		r.With(listFeaturesTimer).Get("/", api.ListFeatures)
+		r.With(getFeatureTimer).Get("/{featureKey}", api.GetFeature)
+	}
 }
