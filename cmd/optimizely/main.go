@@ -18,9 +18,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"github.com/go-chi/chi"
-	"github.com/optimizely/sidedoor/pkg/handler"
-	"github.com/optimizely/sidedoor/pkg/middleware"
 	"github.com/optimizely/sidedoor/pkg/router"
 	"gopkg.in/yaml.v2"
 	"os"
@@ -33,10 +30,8 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/optimizely/sidedoor/config"
-	"github.com/optimizely/sidedoor/pkg/api"
 	"github.com/optimizely/sidedoor/pkg/optimizely"
 	"github.com/optimizely/sidedoor/pkg/server"
-	"github.com/optimizely/sidedoor/pkg/webhook"
 )
 
 // Version holds the admin version
@@ -117,21 +112,9 @@ func main() {
 		cancel()
 	}()
 
-	mw := middleware.CachedOptlyMiddleware{optlyCache}
-
-	r := chi.NewRouter()
-	r.Use(mw.ClientCtx)
-	r.Route("/features", router.WithFeatureRouter(&handler.FeatureHandler{}))
-	r.Route("/experiments", router.WithExperimentRouter(&handler.ExperimentHandler{}))
-
-	r.Route("/users/{userId}", func(r chi.Router) {
-		r.Use(mw.ClientCtx)
-		router.WithUserRouter(&handler.UserHandler{})(r)
-	})
-
 	log.Info().Str("version", conf.Admin.Version).Msg("Starting services.")
-	sg.GoListenAndServe("api", conf.API.Port, api.NewDefaultRouter(optlyCache, conf.API))
-	sg.GoListenAndServe("webhook", conf.Webhook.Port, webhook.NewRouter(optlyCache, conf.Webhook))
+	sg.GoListenAndServe("api", conf.API.Port, router.NewDefaultRouter(optlyCache, conf.API))
+	sg.GoListenAndServe("webhook", conf.Webhook.Port, router.NewRouter(optlyCache, conf.Webhook))
 	sg.GoListenAndServe("admin", conf.Admin.Port, router.NewRouter(conf.Admin)) // Admin should be added last.
 
 	// wait for server group to shutdown

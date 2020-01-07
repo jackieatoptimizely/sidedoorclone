@@ -14,8 +14,8 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package api //
-package api
+// Package router //
+package router
 
 import (
 	"github.com/optimizely/sidedoor/config"
@@ -25,7 +25,6 @@ import (
 	"github.com/go-chi/chi"
 	chimw "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
-	"github.com/optimizely/sidedoor/pkg/api/handlers"
 	"github.com/optimizely/sidedoor/pkg/middleware"
 	"github.com/optimizely/sidedoor/pkg/optimizely"
 )
@@ -48,22 +47,22 @@ var removeForcedVariationTimer func(http.Handler) http.Handler
 func init() {
 	userEventTimer = middleware.Metricize("user-event")
 	listFeaturesTimer = middleware.Metricize("list-features")
-	getFeatureTimer = middleware.Metricize("get-handler")
+	getFeatureTimer = middleware.Metricize("get-feature")
 	listExperimentsTimer = middleware.Metricize("list-experiments")
 	getExperimentTimer = middleware.Metricize("get-experiment")
 	trackEventTimer = middleware.Metricize("track-event")
 	listUserFeaturesTimer = middleware.Metricize("list-user-features")
 	trackUserFeaturesTimer = middleware.Metricize("track-user-features")
-	getUserFeatureTimer = middleware.Metricize("get-user-handler")
-	trackUserFeatureTimer = middleware.Metricize("track-user-handler")
+	getUserFeatureTimer = middleware.Metricize("get-user-feature")
+	trackUserFeatureTimer = middleware.Metricize("track-user-feature")
 	getVariationTimer = middleware.Metricize("get-variation")
 	activateExperimentTimer = middleware.Metricize("activate-experiment")
 	setForcedVariationTimer = middleware.Metricize("set-forced-variation")
 	removeForcedVariationTimer = middleware.Metricize("remove-forced-variation")
 }
 
-// RouterOptions defines the configuration parameters for Router.
-type RouterOptions struct {
+// APIRouterOptions defines the configuration parameters for Router.
+type APIRouterOptions struct {
 	maxConns      int
 	middleware    middleware.OptlyMiddleware
 	experimentAPI handler.ExperimentAPI
@@ -73,21 +72,20 @@ type RouterOptions struct {
 }
 
 // NewDefaultRouter creates a new router with the default backing optimizely.Cache
-func NewDefaultRouter(optlyCache optimizely.Cache, conf config.APIConfig) http.Handler {
-	spec := &RouterOptions{
+func NewDefaultApiRouter(optlyCache optimizely.Cache, conf config.APIConfig) http.Handler {
+	spec := &APIRouterOptions{
 		maxConns:      conf.MaxConns,
 		middleware:    &middleware.CachedOptlyMiddleware{Cache: optlyCache},
 		experimentAPI: new(handler.ExperimentHandler),
 		featureAPI:    new(handler.FeatureHandler),
-		userEventAPI:  new(handlers.UserEventHandler),
 		userAPI:       new(handler.UserHandler),
 	}
 
-	return NewRouter(spec)
+	return NewAPIRouter(spec)
 }
 
 // NewRouter returns HTTP API router backed by an optimizely.Cache implementation
-func NewRouter(opt *RouterOptions) *chi.Mux {
+func NewAPIRouter(opt *APIRouterOptions) *chi.Mux {
 	r := chi.NewRouter()
 
 	if opt.maxConns > 0 {

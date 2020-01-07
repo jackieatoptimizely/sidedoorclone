@@ -26,8 +26,8 @@ import (
 	"github.com/go-chi/render"
 )
 
-// WithAdminRouter returns HTTP admin router
-func WithAdminRouter(conf config.AdminConfig) http.Handler {
+// NewAdminRouter returns HTTP admin router
+func NewAdminRouter(conf config.AdminConfig) http.Handler {
 	r := chi.NewRouter()
 
 	optlyAdmin := handler.NewAdmin(conf.Version, conf.Author, conf.Name)

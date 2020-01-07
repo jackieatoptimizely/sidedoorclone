@@ -48,7 +48,7 @@ func (c *OptlyClient) ListFeatures() (features []optimizelyconfig.OptimizelyFeat
 	return features, err
 }
 
-// GetFeature returns the handler definition
+// GetFeature returns the feature definition
 func (c *OptlyClient) GetFeature(featureKey string) (optimizelyconfig.OptimizelyFeature, error) {
 
 	optimizelyConfig := c.GetOptimizelyConfig()
@@ -60,7 +60,7 @@ func (c *OptlyClient) GetFeature(featureKey string) (optimizelyconfig.Optimizely
 		return feature, nil
 	}
 
-	return optimizelyconfig.OptimizelyFeature{}, errors.New("unable to get handler for featureKey " + featureKey)
+	return optimizelyconfig.OptimizelyFeature{}, errors.New("unable to get feature for featureKey " + featureKey)
 }
 
 // ListExperiments returns all available experiments

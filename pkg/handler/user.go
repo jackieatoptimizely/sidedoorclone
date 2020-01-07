@@ -66,7 +66,7 @@ func (h *UserHandler) TrackEvent(w http.ResponseWriter, r *http.Request) {
 	render.NoContent(w, r)
 }
 
-// GetFeature - Return the handler. Note: no impressions recorded for associated handler tests.
+// GetFeature - Return the feature. Note: no impressions recorded for associated feature tests.
 func (h *UserHandler) GetFeature(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -78,7 +78,7 @@ func (h *UserHandler) GetFeature(w http.ResponseWriter, r *http.Request) {
 	renderFeature(w, r, featureKey, optlyClient, optlyContext)
 }
 
-// TrackFeature - Return the handler and record impression if applicable.
+// TrackFeature - Return the feature and record impression if applicable.
 // Tracking impressions is only supported for "Feature Tests" as part of the SDK contract.
 func (h *UserHandler) TrackFeature(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
@@ -114,7 +114,7 @@ func (h *UserHandler) GetVariation(w http.ResponseWriter, r *http.Request) {
 	renderVariation(w, r, experimentKey, false, optlyClient, optlyContext)
 }
 
-// ActivateExperiment - Return the variatoin that a user is bucketed into and track an impression event
+// ActivateExperiment - Return the variation that a user is bucketed into and track an impression event
 func (h *UserHandler) ActivateExperiment(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -180,8 +180,8 @@ func (h *UserHandler) RemoveForcedVariation(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// ListFeatures - List all handler decisions for a user
-// Note: no impressions recorded for associated handler tests.
+// ListFeatures - List all feature decisions for a user
+// Note: no impressions recorded for associated feature tests.
 func (h *UserHandler) ListFeatures(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -192,7 +192,7 @@ func (h *UserHandler) ListFeatures(w http.ResponseWriter, r *http.Request) {
 	renderFeatures(w, r, optlyClient, optlyContext)
 }
 
-// TrackFeatures - List all handler decisions for a user. Impression events are recorded for all applicable handler tests.
+// TrackFeatures - List all feature decisions for a user. Impression events are recorded for all applicable feature tests.
 func (h *UserHandler) TrackFeatures(w http.ResponseWriter, r *http.Request) {
 	optlyClient, optlyContext, err := parseContext(r)
 	if err != nil {
@@ -201,7 +201,7 @@ func (h *UserHandler) TrackFeatures(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// HACK - Triggers impression events when applicable. This is not
-	// ideal since we're making TWO decisions for each handler now. OASIS-5549
+	// ideal since we're making TWO decisions for each feature now. OASIS-5549
 	enabledFeatures, softErr := optlyClient.GetEnabledFeatures(*optlyContext.UserContext)
 	middleware.GetLogger(r).Info().Strs("enabledFeatures", enabledFeatures).Msg("Calling GetEnabledFeatures")
 	if softErr != nil {
@@ -227,7 +227,7 @@ func parseContext(r *http.Request) (*optimizely.OptlyClient, *optimizely.OptlyCo
 	return optlyClient, optlyContext, nil
 }
 
-// getModelOfFeatureDecision - Returns a models.Feature representing the handler decision from the provided client and context
+// getModelOfFeatureDecision - Returns a models.Feature representing the feature decision from the provided client and context
 func getModelOfFeatureDecision(featureKey string, optlyClient *optimizely.OptlyClient, optlyContext *optimizely.OptlyContext) (*Feature, error) {
 	enabled, variables, err := optlyClient.GetFeatureWithContext(featureKey, optlyContext)
 	if err != nil {
@@ -240,7 +240,7 @@ func getModelOfFeatureDecision(featureKey string, optlyClient *optimizely.OptlyC
 	}, nil
 }
 
-// renderFeature excapsulates extracting a Feature from the Optimizely SDK and rendering a handler response.
+// renderFeature excapsulates extracting a Feature from the Optimizely SDK and rendering a feature response.
 func renderFeature(w http.ResponseWriter, r *http.Request, featureKey string, optlyClient *optimizely.OptlyClient, optlyContext *optimizely.OptlyContext) {
 	featureModel, err := getModelOfFeatureDecision(featureKey, optlyClient, optlyContext)
 	if err != nil {
@@ -248,7 +248,7 @@ func renderFeature(w http.ResponseWriter, r *http.Request, featureKey string, op
 		RenderError(err, http.StatusInternalServerError, w, r)
 		return
 	}
-	middleware.GetLogger(r).Debug().Str("featureKey", featureKey).Msg("rendering handler")
+	middleware.GetLogger(r).Debug().Str("featureKey", featureKey).Msg("rendering feature")
 	render.JSON(w, r, featureModel)
 }
 
@@ -271,7 +271,7 @@ func renderFeatures(w http.ResponseWriter, r *http.Request, optlyClient *optimiz
 			return
 		}
 		featureModels = append(featureModels, featureModel)
-		middleware.GetLogger(r).Debug().Str("featureKey", feature.Key).Msg("rendering handler")
+		middleware.GetLogger(r).Debug().Str("featureKey", feature.Key).Msg("rendering feature")
 	}
 
 	render.JSON(w, r, featureModels)

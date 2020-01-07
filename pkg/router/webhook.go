@@ -18,25 +18,20 @@
 package router
 
 import (
-	"github.com/optimizely/sidedoor/pkg/handler"
-	"net/http"
-
 	"github.com/go-chi/chi"
-	"github.com/optimizely/sidedoor/pkg/middleware"
+	"github.com/go-chi/render"
+	"github.com/optimizely/sidedoor/config"
+	"github.com/optimizely/sidedoor/pkg/handler"
+	"github.com/optimizely/sidedoor/pkg/optimizely"
 )
 
-var listExperimentsTimer func(http.Handler) http.Handler
-var getExperimentTimer func(http.Handler) http.Handler
+// NewRouter returns HTTP API router
+func NewWebhookRouter(optlyCache optimizely.Cache, conf config.WebhookConfig) *chi.Mux {
+	r := chi.NewRouter()
 
-func init() {
-	listExperimentsTimer = middleware.Metricize("list-experiments")
-	getExperimentTimer = middleware.Metricize("get-experiment")
-}
+	r.Use(render.SetContentType(render.ContentTypeJSON))
+	webhookAPI := handler.NewWebhookHandler(optlyCache, conf.Projects)
 
-// NewRouter returns HTTP API router backed by an optimizely.Cache implementation
-func WithExperimentRouter(api handler.ExperimentAPI) func(chi.Router) {
-	return func(r chi.Router) {
-		r.With(listExperimentsTimer).Get("/", api.ListExperiments)
-		r.With(getExperimentTimer).Get("/{experimentKey}", api.GetExperiment)
-	}
+	r.Post("/webhooks/optimizely", webhookAPI.HandleWebhook)
+	return r
 }

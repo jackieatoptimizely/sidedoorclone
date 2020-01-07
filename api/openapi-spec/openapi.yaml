@@ -7,9 +7,6 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: 0.2.0
-servers:
-- url: https://fullstack.api.optimizely.com
-  description: "Hosted Optimizely Decision Service"
 security:
   - SdkKeyAuth: []
 paths:
@@ -29,6 +26,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Experiment'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /experiments/{experimentKey}:
     parameters:
     - $ref: '#/components/parameters/experimentKeyParam'
@@ -45,6 +44,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Experiment'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Experiment does not exist
 #  /experiments/{experimentKey}/variations:
@@ -103,13 +104,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Feature'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /features/{featureKey}:
     parameters:
     - $ref: '#/components/parameters/featureKeyParam'
     get:
-      summary: Return the handler
+      summary: Return the feature
       operationId: getFeature
-      description: Get handler returns the corresponding handler for the given featureKey.
+      description: Get feature returns the corresponding feature for the given featureKey.
       tags:
         - features
       responses:
@@ -119,13 +122,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Feature'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Experiment does not exist
 #  /features/{featureKey}/variations:
 #    parameters:
 #    - $ref: '#/components/parameters/featureKeyParam'
 #    get:
-#      summary: Return handler variations
+#      summary: Return feature variations
 #      operationId: listFeatureVariations
 #      responses:
 #        '200':
@@ -143,7 +148,7 @@ paths:
 #    - $ref: '#/components/parameters/featureKeyParam'
 #    - $ref: '#/components/parameters/variationKeyParam'
 #    get:
-#      summary: Return the handler variant
+#      summary: Return the feature variant
 #      operationId: getFeatureVariation
 #      responses:
 #        '200':
@@ -186,12 +191,14 @@ paths:
       summary: Track event for the given user.
       operationId: trackEvent
       description: Posting and event sends user and event details to Optimizely’s analytics backend for the analysis of
-                   a handler test or a/b test.
+                   a feature test or a/b test.
       tags:
         - users
       responses:
         '204':
           description: No content, user not included in the experiment
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Event does not exist
       requestBody:
@@ -217,6 +224,8 @@ paths:
                 $ref: '#/components/schemas/Variation'
         '204':
           description: No content, user not included in the experiment
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Experiment does not exist
     post:
@@ -236,6 +245,8 @@ paths:
                 $ref: '#/components/schemas/Variation'
         '204':
           description: No content, user not included in the experiment
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Experiment does not exist
   /users/{userId}/experiments/{experimentKey}/variations/{variationKey}:
@@ -258,6 +269,8 @@ paths:
           description: Forced variation was already set
         '400':
           description: Invalid user id, experiment key, or variation key
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /users/{userId}/experiments/{experimentKey}/variations:
     parameters:
     - $ref: '#/components/parameters/userIdParam'
@@ -273,6 +286,8 @@ paths:
           description: Any forced variation was deleted
         '400':
           description: Invalid user id or experiment key
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /users/{userId}/features:
     parameters:
       - $ref: '#/components/parameters/userIdParam'
@@ -280,9 +295,9 @@ paths:
     get:
       summary: Return ALL features resulting from an experiment or rollout
       operationId: listFeatureDecisions
-      description: List handler decisions iterates over all features and returns the handler decisions in the context
-                   of the given user. All features are included regardless of whether the handler is enabled. The
-                   response includes the enabled status of the handler in addition to any configured variables.
+      description: List feature decisions iterates over all features and returns the feature decisions in the context
+                   of the given user. All features are included regardless of whether the feature is enabled. The
+                   response includes the enabled status of the feature in addition to any configured variables.
       tags:
         - users
       responses:
@@ -294,13 +309,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FeatureDecision'
+        '403':
+          $ref: '#/components/responses/Forbidden'
     post:
       summary: Activate ALL features resulting from an experiment or rollout
       operationId: activateAllFeatures
-      description: List handler decisions iterates over all features and returns the handler definition in the context
-                   of the given user. All features are included regardless of whether the handler is enabled. The
-                   response includes the enabled status of the handler in addition to any configured variables. Any
-                   handler that is part of a handler test(s) will also send an impression event to the Optimizely
+      description: List feature decisions iterates over all features and returns the feature definition in the context
+                   of the given user. All features are included regardless of whether the feature is enabled. The
+                   response includes the enabled status of the feature in addition to any configured variables. Any
+                   feature that is part of a feature test(s) will also send an impression event to the Optimizely
                    analytics backend for reporting analysis.
       tags:
         - users
@@ -313,16 +330,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FeatureDecision'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /users/{userId}/features/{featureKey}:
     parameters:
     - $ref: '#/components/parameters/userIdParam'
     - $ref: '#/components/parameters/featureKeyParam'
     - $ref: '#/components/parameters/attributesParam'
     get:
-      summary: Return handler resulting from an experiment or rollout
+      summary: Return feature resulting from an experiment or rollout
       operationId: getFeatureDecision
-      description: Read the handler flag decision for the supplied user ID and experiment key.  The response is
-                   determined by the handler test(s) and/or handler rollout defined for the supplied handler key.
+      description: Read the feature flag decision for the supplied user ID and experiment key.  The response is
+                   determined by the feature test(s) and/or feature rollout defined for the supplied feature key.
       tags:
         - users
       responses:
@@ -334,14 +353,16 @@ paths:
                 $ref: '#/components/schemas/FeatureDecision'
         '204':
           description: No content, user not included in the experiment
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Feature does not exist
     post:
-      summary: Activate handler and return associated variable values
+      summary: Activate feature and return associated variable values
       operationId: activateFeature
-      description: Read the handler flag decisions for the supplied user ID. The response value is determined by the
-                   handler test(s) and/or handler rollout defined for the supplied handler key. If the decision was mafe
-                   as part of a handler test, then this API will send an impression event to Optimizely tracking servers.
+      description: Read the feature flag decisions for the supplied user ID. The response value is determined by the
+                   feature test(s) and/or feature rollout defined for the supplied feature key. If the decision was mafe
+                   as part of a feature test, then this API will send an impression event to Optimizely tracking servers.
       tags:
         - users
       responses:
@@ -353,6 +374,8 @@ paths:
                 $ref: '#/components/schemas/FeatureDecision'
         '204':
           description: No content, user not included in the experiment
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           description: Feature does not exist
 components:
@@ -383,7 +406,7 @@ components:
       in: path
       name: featureKey
       required: true
-      description: Key of the handler we're activating
+      description: Key of the feature we're activating
       schema:
         type: string
     userIdParam:
@@ -408,7 +431,18 @@ components:
           schema:
             type: object
             additionalProperties: true
+  responses:
+    Forbidden:
+      description: You do not have necessary permissions for the resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
+    Error:
+      properties:
+        error:
+          type: string
     Experiment:
       properties:
         id:

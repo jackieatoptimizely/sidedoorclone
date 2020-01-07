@@ -14,8 +14,8 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package api //
-package api
+// Package router //
+package router
 
 import (
 	"encoding/json"
@@ -137,7 +137,7 @@ func (suite *RouterTestSuite) SetupTest() {
 	testClient := optimizelytest.NewClient()
 	suite.tc = testClient
 
-	opts := &RouterOptions{
+	opts := &APIRouterOptions{
 		maxConns:      1,
 		experimentAPI: new(MockExperimentAPI),
 		featureAPI:    new(MockFeatureAPI),
@@ -146,7 +146,7 @@ func (suite *RouterTestSuite) SetupTest() {
 		middleware:    new(MockOptlyMiddleware),
 	}
 
-	suite.mux = NewRouter(opts)
+	suite.mux = NewAPIRouter(opts)
 }
 
 func (suite *RouterTestSuite) TestListFeatures() {

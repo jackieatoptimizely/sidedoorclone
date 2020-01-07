@@ -14,8 +14,8 @@
  * limitations under the License.                                           *
  ***************************************************************************/
 
-// Package webhook //
-package webhook
+// Package handler //
+package handler
 
 import (
 	"crypto/hmac"
@@ -131,4 +131,20 @@ func (h *OptlyWebhookHandler) HandleWebhook(w http.ResponseWriter, r *http.Reque
 		optlyClient.UpdateConfig()
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// DatafileUpdateData model which represents data specific to datafile update
+type DatafileUpdateData struct {
+	Revision    int32  `json:"revision"`
+	OriginURL   string `json:"origin_url"`
+	CDNUrl      string `json:"cdn_url"`
+	Environment string `json:"environment"`
+}
+
+// OptlyMessage model which represents any message received from Optimizely
+type OptlyMessage struct {
+	ProjectID int64              `json:"project_id"`
+	Timestamp int64              `json:"timestamp"`
+	Event     string             `json:"event"`
+	Data      DatafileUpdateData `json:"data"`
 }
